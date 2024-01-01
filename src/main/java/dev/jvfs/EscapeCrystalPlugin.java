@@ -7,12 +7,13 @@ import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.api.events.ChatMessage;
+import net.runelite.client.util.Text;
 
 @Slf4j
 @PluginDescriptor(
@@ -25,21 +26,42 @@ public class EscapeCrystalPlugin extends Plugin {
     @Inject
     private EscapeCrystalConfig config;
 
+    @Inject
+    private ConfigManager configManager;
+
+    @Inject
+    private OverlayManager overlayManager;
+
+    @Inject
+    private EscapeCrystalOverlay overlay;
+
     @Override
     protected void startUp() throws Exception {
-        log.info("EscapeCrystal plugin started!");
+        overlayManager.add(overlay);
     }
 
     @Override
     protected void shutDown() throws Exception {
-        log.info("EscapeCrystal plugin stopped!");
+        overlayManager.remove(overlay);
     }
 
     @Subscribe
-    public void onGameStateChanged(GameStateChanged gameStateChanged) {
-        if (gameStateChanged.getGameState() == GameState.LOGGED_IN) {
-            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says ", null);
+    public void onChatMessage(ChatMessage event) {
+        if (event.getType() != ChatMessageType.GAMEMESSAGE || event.getType() == ChatMessageType.SPAM) {
+            return;
         }
+
+        String message = Text.removeTags(event.getMessage());
+
+        if (message.contains("Your escape crystals will now auto-activate")) {
+            setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus.ACTIVE);
+        } else if (message.contains("Your escape crystals will no longer auto-activate")) {
+            setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus.INACTIVE);
+        }
+    }
+
+    private void setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus status) {
+        configManager.setRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_STATUS_KEY, status);
     }
 
     @Provides
