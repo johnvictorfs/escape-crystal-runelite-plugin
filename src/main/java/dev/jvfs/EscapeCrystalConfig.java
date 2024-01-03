@@ -10,11 +10,13 @@ import java.awt.Color;
 public interface EscapeCrystalConfig extends Config {
     String GROUP = "escapeCrystal";
     String AUTO_TELE_STATUS_KEY = "autoTeleStatus";
+    String AUTO_TELE_TIMER_KEY = "autoTeleTimer";
 
     @ConfigItem(
             keyName = "highlightAutoTele",
             name = "Highlight auto-tele crystal",
-            description = "Highlight the escape crystal when the auto-tele function is activated"
+            description = "Highlight the escape crystal when the auto-tele function is activated",
+            position = 1
     )
     default boolean highlightAutoTele() {
         return true;
@@ -23,7 +25,8 @@ public interface EscapeCrystalConfig extends Config {
     @ConfigItem(
             keyName = "autoTeleActiveText",
             name = "Auto-tele active text",
-            description = "Text to display by the escape crystal when auto-tele is active"
+            description = "Text to display by the escape crystal when auto-tele is active",
+            position = 2
     )
     default String autoTeleActiveText() {
         return "A";
@@ -32,9 +35,20 @@ public interface EscapeCrystalConfig extends Config {
     @ConfigItem(
             keyName = "autoTeleStatusColor",
             name = "Auto-tele active color",
-            description = "The color of the overlay when auto-tele is active"
+            description = "The color of the overlay when auto-tele is active",
+            position = 3
     )
     default Color autoTeleStatusColor() {
         return Color.GREEN;
+    }
+
+    @ConfigItem(
+            keyName = "autoTeleTimer",
+            name = "Auto-tele timer",
+            description = "Display a infbox with a timer for when auto-tele is gonna trigger",
+            position = 4
+    )
+    default boolean autoTeleTimer() {
+        return true;
     }
 }

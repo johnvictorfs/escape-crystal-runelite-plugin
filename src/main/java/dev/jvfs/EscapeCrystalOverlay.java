@@ -15,6 +15,7 @@ import java.awt.Rectangle;
 public class EscapeCrystalOverlay extends WidgetItemOverlay {
     private final EscapeCrystalConfig config;
     private final ConfigManager configManager;
+    private final EscapeCrystalPlugin plugin;
 
     public enum AutoTeleStatus {
         UNKNOWN,
@@ -23,28 +24,12 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
     }
 
     @Inject
-    EscapeCrystalOverlay(EscapeCrystalConfig config, ConfigManager configManager) {
+    EscapeCrystalOverlay(EscapeCrystalConfig config, ConfigManager configManager, EscapeCrystalPlugin plugin) {
         this.config = config;
         this.configManager = configManager;
+        this.plugin = plugin;
         showOnInventory();
         showOnBank();
-    }
-
-    private AutoTeleStatus getAutoTeleStatus() {
-        String status = configManager.getRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_STATUS_KEY);
-
-        if (status == null) {
-            return AutoTeleStatus.UNKNOWN;
-        }
-
-        switch (status) {
-            case "ACTIVE":
-                return AutoTeleStatus.ACTIVE;
-            case "INACTIVE":
-                return AutoTeleStatus.INACTIVE;
-            default:
-                return AutoTeleStatus.UNKNOWN;
-        }
     }
 
     @Override
@@ -54,7 +39,7 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
             return;
         }
 
-        AutoTeleStatus status = getAutoTeleStatus();
+        AutoTeleStatus status = plugin.getAutoTeleStatus();
 
         if (status == AutoTeleStatus.INACTIVE) {
             return;
