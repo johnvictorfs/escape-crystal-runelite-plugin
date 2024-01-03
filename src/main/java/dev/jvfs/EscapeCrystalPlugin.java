@@ -166,10 +166,6 @@ public class EscapeCrystalPlugin extends Plugin {
     private void createAutoTeleTimer(Duration duration) {
         removeAutoTeleTimer();
 
-        if (duration.isNegative()) {
-            return;
-        }
-
         BufferedImage image = itemManager.getImage(ItemID.ESCAPE_CRYSTAL);
         infoBoxManager.addInfoBox(new EscapeCrystalTimer(duration, image, this, this.config));
     }
