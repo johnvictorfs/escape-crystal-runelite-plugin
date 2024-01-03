@@ -18,5 +18,5 @@ Runescape.
 
   Shows an infobox timer on how long there's left until the Escape Crystal auto-tele is triggered.
 
-![Auto-tele infobox timer](assets/screenshots/escape-crystal-auto-tele-highlight.png)
+![Auto-tele infobox timer](assets/screenshots/auto-tele-infobox-timer.png)
 ![Auto-tele config](assets/screenshots/auto-tele-timer-config.png)
