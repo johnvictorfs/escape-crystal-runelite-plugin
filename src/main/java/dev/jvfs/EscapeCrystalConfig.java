@@ -29,7 +29,7 @@ public interface EscapeCrystalConfig extends Config {
             position = 2
     )
     default String autoTeleActiveText() {
-        return "A";
+        return "Active";
     }
 
     @ConfigItem(

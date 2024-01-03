@@ -1,6 +1,5 @@
 package dev.jvfs;
 
-import net.runelite.client.plugins.Plugin;
 import net.runelite.client.ui.overlay.infobox.Timer;
 
 import java.awt.Color;
@@ -10,9 +9,14 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 public class EscapeCrystalTimer extends Timer {
-    EscapeCrystalTimer(Duration duration, BufferedImage image, Plugin plugin) {
+    private final EscapeCrystalConfig config;
+    private final EscapeCrystalPlugin plugin;
+
+    EscapeCrystalTimer(Duration duration, BufferedImage image, EscapeCrystalPlugin plugin, EscapeCrystalConfig config) {
         super(duration.toMillis(), ChronoUnit.MILLIS, image, plugin);
-        setTooltip("Time until the escape crystal teleports you");
+        this.config = config;
+        this.plugin = plugin;
+        setTooltip("Time until the escape crystal teleports you if you take damage");
     }
 
     @Override
@@ -24,5 +28,10 @@ public class EscapeCrystalTimer extends Timer {
         }
 
         return Color.WHITE;
+    }
+
+    @Override
+    public boolean render() {
+        return config.autoTeleTimer() && this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE;
     }
 }

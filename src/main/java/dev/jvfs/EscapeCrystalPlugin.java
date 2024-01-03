@@ -4,19 +4,18 @@ import com.google.inject.Provides;
 
 import javax.inject.Inject;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.ItemID;
+import net.runelite.api.*;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.widgets.Widget;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.api.Constants;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
@@ -24,7 +23,6 @@ import net.runelite.client.util.Text;
 
 import java.awt.image.BufferedImage;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +52,13 @@ public class EscapeCrystalPlugin extends Plugin {
     @Inject
     private InfoBoxManager infoBoxManager;
 
+    @Getter(AccessLevel.PACKAGE)
+    @Inject
+    private ClientThread clientThread;
+
+    private final Pattern AUTO_TELE_UPDATE_TIMER_PATTERN = Pattern.compile("The inactivity period for auto-activation is now (\\d+)s");
+    private final Pattern AUTO_TELE_STATUS_TIME_PATTERN = Pattern.compile("(\\\\d+) seconds");
+
     @Getter
     private long lastIdleDuration = -1;
 
@@ -77,8 +82,7 @@ public class EscapeCrystalPlugin extends Plugin {
         String message = Text.removeTags(event.getMessage());
 
         if (message.contains("Your escape crystals will now auto-activate")) {
-            Pattern pattern = Pattern.compile("(\\d+) seconds");
-            Matcher matcher = pattern.matcher(message);
+            Matcher matcher = AUTO_TELE_STATUS_TIME_PATTERN.matcher(message);
 
             if (matcher.find()) {
                 String seconds = matcher.group(1);
@@ -122,13 +126,20 @@ public class EscapeCrystalPlugin extends Plugin {
             return;
         }
 
-        if (!config.autoTeleTimer()) {
-            removeAutoTeleTimer();
-        }
+        // Chatbox for confirmation when updating auto-tele period
+        // The text for this widget is always null when using 'onWidgetLoaded'
+        Widget widget = client.getWidget(229, 1);
+        if (widget != null) {
+            // "The inactivity period for auto-activation is now <duration>s."
+            String widgetText = Text.removeTags(widget.getText());
+            Matcher matcher = AUTO_TELE_UPDATE_TIMER_PATTERN.matcher(widgetText);
 
-        if (getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.INACTIVE) {
-            removeAutoTeleTimer();
-            return;
+            if (matcher.find()) {
+                String seconds = matcher.group(1);
+                int duration = Integer.parseInt(seconds);
+                EscapeCrystalOverlay.AutoTeleStatus status = getAutoTeleStatus();
+                setEscapeCrystalStatus(status, duration);
+            }
         }
 
         // Update auto-tele timer infobox when idle timer resets
@@ -140,10 +151,6 @@ public class EscapeCrystalPlugin extends Plugin {
 
         int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
         final int durationMillis = Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
-
-        if (durationMillis < 0) {
-            return;
-        }
 
         if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
@@ -164,7 +171,7 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         BufferedImage image = itemManager.getImage(ItemID.ESCAPE_CRYSTAL);
-        infoBoxManager.addInfoBox(new EscapeCrystalTimer(duration, image, this));
+        infoBoxManager.addInfoBox(new EscapeCrystalTimer(duration, image, this, this.config));
     }
 
     @Provides

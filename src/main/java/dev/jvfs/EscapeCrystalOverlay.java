@@ -2,7 +2,6 @@ package dev.jvfs;
 
 import net.runelite.api.ItemID;
 import net.runelite.api.widgets.WidgetItem;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
 import net.runelite.client.ui.overlay.components.TextComponent;
@@ -14,7 +13,6 @@ import java.awt.Rectangle;
 
 public class EscapeCrystalOverlay extends WidgetItemOverlay {
     private final EscapeCrystalConfig config;
-    private final ConfigManager configManager;
     private final EscapeCrystalPlugin plugin;
 
     public enum AutoTeleStatus {
@@ -24,9 +22,8 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
     }
 
     @Inject
-    EscapeCrystalOverlay(EscapeCrystalConfig config, ConfigManager configManager, EscapeCrystalPlugin plugin) {
+    EscapeCrystalOverlay(EscapeCrystalConfig config, EscapeCrystalPlugin plugin) {
         this.config = config;
-        this.configManager = configManager;
         this.plugin = plugin;
         showOnInventory();
         showOnBank();
