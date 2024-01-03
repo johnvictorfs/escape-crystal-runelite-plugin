@@ -4,13 +4,15 @@ import com.google.inject.Provides;
 
 import javax.inject.Inject;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.ChatMessageType;
+import net.runelite.api.Client;
+import net.runelite.api.Constants;
+import net.runelite.api.GameState;
+import net.runelite.api.ItemID;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.widgets.Widget;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
@@ -51,10 +53,6 @@ public class EscapeCrystalPlugin extends Plugin {
 
     @Inject
     private InfoBoxManager infoBoxManager;
-
-    @Getter(AccessLevel.PACKAGE)
-    @Inject
-    private ClientThread clientThread;
 
     private final Pattern AUTO_TELE_UPDATE_TIMER_PATTERN = Pattern.compile("The inactivity period for auto-activation is now (\\d+)s");
     private final Pattern AUTO_TELE_STATUS_TIME_PATTERN = Pattern.compile("(\\\\d+) seconds");
