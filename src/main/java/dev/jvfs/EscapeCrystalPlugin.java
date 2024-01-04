@@ -55,7 +55,7 @@ public class EscapeCrystalPlugin extends Plugin {
     private InfoBoxManager infoBoxManager;
 
     private final Pattern AUTO_TELE_UPDATE_TIMER_PATTERN = Pattern.compile("The inactivity period for auto-activation is now (\\d+)s");
-    private final Pattern AUTO_TELE_STATUS_TIME_PATTERN = Pattern.compile("(\\\\d+) seconds");
+    private final Pattern AUTO_TELE_STATUS_TIME_PATTERN = Pattern.compile("(\\d+) seconds");
 
     @Getter
     private long lastIdleDuration = -1;
@@ -141,20 +141,26 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         // Update auto-tele timer infobox when idle timer resets
-        String autoTeleTimerValue = configManager.getRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_TIMER_KEY);
-
-        if (autoTeleTimerValue == null || autoTeleTimerValue.equals("-1")) {
-            return;
-        }
-
-        int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
-        final int durationMillis = Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
+        final int durationMillis = getAutoTelePeriod();
 
         if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
         }
 
         lastIdleDuration = durationMillis;
+    }
+
+    private int getAutoTelePeriod() {
+        String autoTeleTimerValue = configManager.getRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_TIMER_KEY);
+
+        if (autoTeleTimerValue == null || autoTeleTimerValue.equals("-1")) {
+            return -1;
+        }
+
+        int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
+        final int durationMillis = Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
+
+        return durationMillis;
     }
 
     private void removeAutoTeleTimer() {
