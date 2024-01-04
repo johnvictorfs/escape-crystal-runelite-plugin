@@ -2,7 +2,6 @@ package dev.jvfs;
 
 import net.runelite.api.ItemID;
 import net.runelite.api.widgets.WidgetItem;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
 import net.runelite.client.ui.overlay.components.TextComponent;
@@ -14,7 +13,7 @@ import java.awt.Rectangle;
 
 public class EscapeCrystalOverlay extends WidgetItemOverlay {
     private final EscapeCrystalConfig config;
-    private final ConfigManager configManager;
+    private final EscapeCrystalPlugin plugin;
 
     public enum AutoTeleStatus {
         UNKNOWN,
@@ -23,28 +22,11 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
     }
 
     @Inject
-    EscapeCrystalOverlay(EscapeCrystalConfig config, ConfigManager configManager) {
+    EscapeCrystalOverlay(EscapeCrystalConfig config, EscapeCrystalPlugin plugin) {
         this.config = config;
-        this.configManager = configManager;
+        this.plugin = plugin;
         showOnInventory();
         showOnBank();
-    }
-
-    private AutoTeleStatus getAutoTeleStatus() {
-        String status = configManager.getRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_STATUS_KEY);
-
-        if (status == null) {
-            return AutoTeleStatus.UNKNOWN;
-        }
-
-        switch (status) {
-            case "ACTIVE":
-                return AutoTeleStatus.ACTIVE;
-            case "INACTIVE":
-                return AutoTeleStatus.INACTIVE;
-            default:
-                return AutoTeleStatus.UNKNOWN;
-        }
     }
 
     @Override
@@ -54,7 +36,7 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
             return;
         }
 
-        AutoTeleStatus status = getAutoTeleStatus();
+        AutoTeleStatus status = plugin.getAutoTeleStatus();
 
         if (status == AutoTeleStatus.INACTIVE) {
             return;
