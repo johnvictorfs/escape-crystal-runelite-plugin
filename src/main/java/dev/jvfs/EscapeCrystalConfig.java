@@ -14,26 +14,33 @@ public interface EscapeCrystalConfig extends Config {
     String AUTO_TELE_TIMER_KEY = "autoTeleTimer";
 
     @ConfigSection(
-            name = "Crystal Overlay",
+            name = "Auto-tele Crystal Overlay",
             description = "Configuration the Escape Crystal Overlay",
             position = 1
     )
     String crystalOverlaySection = "crystalOverlaySection";
 
+    enum CrystalHighlightOverlay {
+        ACTIVE,
+        INACTIVE,
+        BOTH,
+        NEVER
+    }
+
     @ConfigItem(
             keyName = "highlightAutoTele",
-            name = "Highlight auto-tele crystal",
-            description = "Highlight the escape crystal when the auto-tele function is activated",
+            name = "Highlight auto-tele",
+            description = "Highlight the escape crystal when the auto-tele function is active/inactive",
             position = 2,
             section = crystalOverlaySection
     )
-    default boolean highlightAutoTele() {
-        return true;
+    default CrystalHighlightOverlay highlightAutoTele() {
+        return CrystalHighlightOverlay.ACTIVE;
     }
 
     @ConfigItem(
             keyName = "autoTeleActiveText",
-            name = "Auto-tele active text",
+            name = "Active text",
             description = "Text to display by the escape crystal when auto-tele is active",
             position = 3,
             section = crystalOverlaySection
@@ -43,14 +50,36 @@ public interface EscapeCrystalConfig extends Config {
     }
 
     @ConfigItem(
-            keyName = "autoTeleStatusColor",
-            name = "Auto-tele active color",
+            keyName = "autoTeleActiveStatusColor",
+            name = "Active color",
             description = "The color of the overlay when auto-tele is active",
             position = 4,
             section = crystalOverlaySection
     )
-    default Color autoTeleStatusColor() {
+    default Color autoTeleActiveStatusColor() {
         return Color.GREEN;
+    }
+
+    @ConfigItem(
+            keyName = "autoTeleInactiveText",
+            name = "Inactive text",
+            description = "Text to display by the escape crystal when auto-tele is inactive",
+            position = 3,
+            section = crystalOverlaySection
+    )
+    default String autoTeleInactiveText() {
+        return "Inactive";
+    }
+
+    @ConfigItem(
+            keyName = "autoTeleInactiveStatusColor",
+            name = "Inactive color",
+            description = "The color of the overlay when auto-tele is inactive",
+            position = 4,
+            section = crystalOverlaySection
+    )
+    default Color autoTeleInactiveStatusColor() {
+        return Color.RED;
     }
 
     @ConfigSection(

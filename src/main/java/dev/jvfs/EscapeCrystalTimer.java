@@ -57,6 +57,8 @@ public class EscapeCrystalTimer extends InfoBox {
 
     @Override
     public boolean render() {
-        return config.autoTeleTimer() && this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE;
+        return config.autoTeleTimer() &&
+                plugin.hasEscapeCrystal() &&
+                this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE;
     }
 }

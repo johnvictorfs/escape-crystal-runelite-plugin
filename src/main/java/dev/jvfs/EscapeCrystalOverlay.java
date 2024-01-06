@@ -7,6 +7,7 @@ import net.runelite.client.ui.overlay.WidgetItemOverlay;
 import net.runelite.client.ui.overlay.components.TextComponent;
 
 import javax.inject.Inject;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -32,22 +33,41 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
     @Override
     public void renderItemOverlay(Graphics2D graphics, int itemId, WidgetItem widgetItem) {
         // Highlight for escape crystal if enabled and it is active
-        if (!config.highlightAutoTele() || itemId != ItemID.ESCAPE_CRYSTAL) {
+        if (itemId != ItemID.ESCAPE_CRYSTAL) {
+            return;
+        }
+
+        if (config.highlightAutoTele() == EscapeCrystalConfig.CrystalHighlightOverlay.NEVER) {
             return;
         }
 
         AutoTeleStatus status = plugin.getAutoTeleStatus();
 
+        String highlightText = "?";
+        Color highlightColor = Color.WHITE;
+
         if (status == AutoTeleStatus.INACTIVE) {
-            return;
+            if (config.highlightAutoTele() == EscapeCrystalConfig.CrystalHighlightOverlay.ACTIVE) {
+                return;
+            }
+
+            highlightText = config.autoTeleInactiveText();
+            highlightColor = config.autoTeleInactiveStatusColor();
+        } else if (status == AutoTeleStatus.ACTIVE) {
+            if (config.highlightAutoTele() == EscapeCrystalConfig.CrystalHighlightOverlay.INACTIVE) {
+                return;
+            }
+
+            highlightText = config.autoTeleActiveText();
+            highlightColor = config.autoTeleActiveStatusColor();
         }
 
         graphics.setFont(FontManager.getRunescapeSmallFont());
         final Rectangle bounds = widgetItem.getCanvasBounds();
         final TextComponent textComponent = new TextComponent();
         textComponent.setPosition(new Point(bounds.x - 1, bounds.y + 35));
-        textComponent.setText(status == AutoTeleStatus.UNKNOWN ? "?" : config.autoTeleActiveText());
-        textComponent.setColor(config.autoTeleStatusColor());
+        textComponent.setText(highlightText);
+        textComponent.setColor(highlightColor);
         textComponent.render(graphics);
     }
 }
