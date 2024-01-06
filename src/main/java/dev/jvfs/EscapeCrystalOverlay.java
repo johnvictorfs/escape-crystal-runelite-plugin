@@ -7,7 +7,10 @@ import net.runelite.client.ui.overlay.WidgetItemOverlay;
 import net.runelite.client.ui.overlay.components.TextComponent;
 
 import javax.inject.Inject;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 public class EscapeCrystalOverlay extends WidgetItemOverlay {
     private final EscapeCrystalConfig config;
