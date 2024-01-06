@@ -6,11 +6,7 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.Client;
-import net.runelite.api.Constants;
-import net.runelite.api.GameState;
-import net.runelite.api.ItemID;
+import net.runelite.api.*;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.config.ConfigManager;
@@ -90,6 +86,16 @@ public class EscapeCrystalPlugin extends Plugin {
         } else if (message.contains("Your escape crystals will no longer auto-activate")) {
             setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus.INACTIVE, -1);
         }
+    }
+
+    public boolean hasEscapeCrystal() {
+        ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
+
+        if (inventory != null) {
+            return inventory.contains(ItemID.ESCAPE_CRYSTAL);
+        }
+
+        return false;
     }
 
     private void setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus status, int duration) {
