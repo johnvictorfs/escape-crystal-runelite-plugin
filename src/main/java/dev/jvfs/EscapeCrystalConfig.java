@@ -121,4 +121,15 @@ public interface EscapeCrystalConfig extends Config {
     default Color autoTeleTimerAlertColor() {
         return Color.RED.brighter();
     }
+
+    @ConfigItem(
+            keyName = "autoTeleNotification",
+            name = "Auto-tele notification warning",
+            description = "Triggers a notification when the warning time before teleporting is reached",
+            position = 9,
+            section = autoTeleTimerSection
+    )
+    default boolean autoTeleNotification() {
+        return false;
+    }
 }
