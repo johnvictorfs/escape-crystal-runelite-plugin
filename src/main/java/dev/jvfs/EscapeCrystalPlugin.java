@@ -15,6 +15,7 @@ import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.widgets.Widget;
+import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
@@ -56,11 +57,17 @@ public class EscapeCrystalPlugin extends Plugin {
     @Inject
     private InfoBoxManager infoBoxManager;
 
+    @Inject
+    private Notifier notifier;
+
     private final Pattern AUTO_TELE_UPDATE_TIMER_PATTERN = Pattern.compile("The inactivity period for auto-activation is now (\\d+)s");
     private final Pattern AUTO_TELE_STATUS_TIME_PATTERN = Pattern.compile("(\\d+) seconds");
 
     @Getter
     private long lastIdleDuration = -1;
+
+    @Getter
+    private boolean notifiedThisTimer = false;
 
     @Override
     protected void startUp() throws Exception {
@@ -157,6 +164,16 @@ public class EscapeCrystalPlugin extends Plugin {
 
         if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
+
+            if (config.autoTeleNotification() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
+                notifier.notify("Escape Crystal about to trigger");
+                notifiedThisTimer = true;
+            }
+        }
+
+        if (lastIdleDuration < durationMillis) {
+            // Timer reset, can send notification again
+            notifiedThisTimer = false;
         }
 
         lastIdleDuration = durationMillis;
