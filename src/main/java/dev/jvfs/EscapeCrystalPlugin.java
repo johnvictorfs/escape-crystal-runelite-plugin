@@ -165,7 +165,7 @@ public class EscapeCrystalPlugin extends Plugin {
         if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
 
-            if (config.autoTeleNotification() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
+            if (config.autoTeleNotification() && this.hasEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
                 notifier.notify("Escape Crystal about to trigger");
                 notifiedThisTimer = true;
             }
