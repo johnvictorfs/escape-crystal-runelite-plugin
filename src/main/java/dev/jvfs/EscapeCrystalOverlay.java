@@ -27,7 +27,7 @@ public class EscapeCrystalOverlay extends WidgetItemOverlay {
         this.config = config;
         this.plugin = plugin;
         showOnInventory();
-        showOnBank();
+        showOnEquipment();
     }
 
     @Override

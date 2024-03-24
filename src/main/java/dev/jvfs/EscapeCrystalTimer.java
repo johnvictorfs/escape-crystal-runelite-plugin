@@ -26,6 +26,13 @@ public class EscapeCrystalTimer extends InfoBox {
 
     @Override
     public String getText() {
+        if (this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.INACTIVE) {
+            // Using 'config.autoTeleInactiveText' could result in overflowing off the infobox
+            return "Off";
+        } else if (this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.UNKNOWN) {
+            return "?";
+        }
+
         Duration timeLeft = Duration.between(Instant.now(), endTime);
 
         int seconds = (int) (timeLeft.toMillis() / 1000L);
@@ -59,6 +66,6 @@ public class EscapeCrystalTimer extends InfoBox {
     public boolean render() {
         return config.autoTeleTimer() &&
                 plugin.hasEscapeCrystal() &&
-                this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE;
+                (this.plugin.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE || config.autoTeleTimerWhenInactive());
     }
 }

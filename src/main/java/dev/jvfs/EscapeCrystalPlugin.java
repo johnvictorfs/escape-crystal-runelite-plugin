@@ -36,6 +36,10 @@ import java.util.regex.Pattern;
         name = "Escape Crystal"
 )
 public class EscapeCrystalPlugin extends Plugin {
+    private static final int GAUNTLET_REGION = 7512;
+    private static final int CORRUPTED_GAUNTLET_REGION = 7768;
+    private static final int GAUNTLET_LOBBY_REGION = 11870;
+
     @Inject
     private Client client;
 
@@ -68,6 +72,12 @@ public class EscapeCrystalPlugin extends Plugin {
 
     @Getter
     private boolean notifiedThisTimer = false;
+
+    @Getter
+    private boolean inGauntletWithCrystal = false;
+
+    @Getter
+    private boolean notifiedGauntlet = false;
 
     @Override
     protected void startUp() throws Exception {
@@ -104,11 +114,55 @@ public class EscapeCrystalPlugin extends Plugin {
     public boolean hasEscapeCrystal() {
         ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
 
-        if (inventory != null) {
-            return inventory.contains(ItemID.ESCAPE_CRYSTAL);
+        if (inventory != null && inventory.contains(ItemID.ESCAPE_CRYSTAL)) {
+            return true;
         }
 
-        return false;
+        ItemContainer equipment = client.getItemContainer(InventoryID.EQUIPMENT);
+
+        if (equipment != null && equipment.contains(ItemID.ESCAPE_CRYSTAL)) {
+            return true;
+        }
+
+        return this.isInsideGauntlet() && this.inGauntletWithCrystal;
+    }
+
+    private void checkGauntlet() {
+        if (!this.inGauntletWithCrystal) {
+            if (this.isInGauntletLobby()) {
+                if (this.hasEscapeCrystal() && this.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE) {
+                    // Inside the gauntlet lobby with an active escape crystal
+                    this.inGauntletWithCrystal = true;
+                } else if (this.config.notifyGauntletWithoutCrystal()) {
+                    // Inside the Gauntlet lobby without an escape crystal (or an inactive one)
+                    if (!this.notifiedGauntlet) {
+                        notifier.notify("Warning: You do not have an active escape crystal with you!");
+                        this.notifiedGauntlet = true;
+                    }
+                }
+            }
+        } else {
+            // Outside gauntlet and lobby
+            if (!this.isInGauntletLobby() && !this.isInsideGauntlet()) {
+                this.inGauntletWithCrystal = false;
+            }
+        }
+
+        // Refresh notification to send if entering gauntlet without crystal
+        if (this.notifiedGauntlet && !this.isInGauntletLobby() && !this.isInsideGauntlet()) {
+            this.notifiedGauntlet = false;
+        }
+    }
+
+    private boolean isInsideGauntlet() {
+        return this.client.isInInstancedRegion()
+                && this.client.getMapRegions().length > 0
+                && (this.client.getMapRegions()[0] == GAUNTLET_REGION
+                || this.client.getMapRegions()[0] == CORRUPTED_GAUNTLET_REGION);
+    }
+
+    private boolean isInGauntletLobby() {
+        return this.client.getMapRegions().length > 0 && this.client.getMapRegions()[0] == GAUNTLET_LOBBY_REGION;
     }
 
     private void setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus status, int duration) {
@@ -143,6 +197,8 @@ public class EscapeCrystalPlugin extends Plugin {
             return;
         }
 
+        this.checkGauntlet();
+
         // Chatbox for confirmation when updating auto-tele period
         // The text for this widget is always null when using 'onWidgetLoaded'
         Widget widget = client.getWidget(229, 1);
@@ -165,7 +221,10 @@ public class EscapeCrystalPlugin extends Plugin {
         if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
 
-            if (config.autoTeleNotification() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
+            if (config.autoTeleNotification() && this.hasEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
+                if (config.autoTeleNotificationInCombat() && !this.isInCombat()) {
+                    return;
+                }
                 notifier.notify("Escape Crystal about to trigger");
                 notifiedThisTimer = true;
             }
@@ -187,9 +246,12 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
-        final int durationMillis = Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
 
-        return durationMillis;
+        return Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
+    }
+
+    private boolean isInCombat() {
+        return client.getLocalPlayer().getHealthScale() != -1;
     }
 
     private void removeAutoTeleTimer() {
