@@ -154,4 +154,15 @@ public interface EscapeCrystalConfig extends Config {
     default boolean autoTeleNotificationInCombat() {
         return false;
     }
+
+    @ConfigItem(
+            keyName = "notifyGauntletWithoutCrystal",
+            name = "Notify when entering Gauntlet without crystal",
+            description = "Triggers a notification when entering the Gauntlet without an escape crystal",
+            position = 12,
+            section = autoTeleTimerSection
+    )
+    default boolean notifyGauntletWithoutCrystal() {
+        return true;
+    }
 }
