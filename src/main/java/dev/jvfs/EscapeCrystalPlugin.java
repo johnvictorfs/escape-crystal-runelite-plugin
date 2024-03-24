@@ -104,11 +104,13 @@ public class EscapeCrystalPlugin extends Plugin {
     public boolean hasEscapeCrystal() {
         ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
 
-        if (inventory != null) {
-            return inventory.contains(ItemID.ESCAPE_CRYSTAL);
+        if (inventory != null && inventory.contains(ItemID.ESCAPE_CRYSTAL)) {
+            return true;
         }
 
-        return false;
+        ItemContainer equipment = client.getItemContainer(InventoryID.EQUIPMENT);
+
+        return equipment != null && equipment.contains(ItemID.ESCAPE_CRYSTAL);
     }
 
     private void setEscapeCrystalStatus(EscapeCrystalOverlay.AutoTeleStatus status, int duration) {
