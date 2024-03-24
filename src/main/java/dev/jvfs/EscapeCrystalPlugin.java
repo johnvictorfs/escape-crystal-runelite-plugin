@@ -187,9 +187,8 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
-        final int durationMillis = Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
 
-        return durationMillis;
+        return Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
     }
 
     private void removeAutoTeleTimer() {

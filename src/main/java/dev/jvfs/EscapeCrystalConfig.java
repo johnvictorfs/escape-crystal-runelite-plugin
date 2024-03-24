@@ -101,10 +101,21 @@ public interface EscapeCrystalConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = "autoTeleTimerWhenInactive",
+            name = "Show infobox even when inactive",
+            description = "If active, show the infobox even when the auto-tele function is inactive",
+            position = 7,
+            section = autoTeleTimerSection
+    )
+    default boolean autoTeleTimerWhenInactive() {
+        return false;
+    }
+
+    @ConfigItem(
             keyName = "autoTeleTimerAlertTime",
             name = "Infobox Alert time",
             description = "When the auto-tele timer is below this time (in seconds), the timer will turn a different color. Keep at 0 to disable.",
-            position = 7,
+            position = 8,
             section = autoTeleTimerSection
     )
     default int autoTeleTimerAlertTime() {
@@ -115,7 +126,7 @@ public interface EscapeCrystalConfig extends Config {
             keyName = "autoTeleTimerAlertColor",
             name = "Infobox Alert color",
             description = "The color of the timer when auto-tele is active",
-            position = 8,
+            position = 9,
             section = autoTeleTimerSection
     )
     default Color autoTeleTimerAlertColor() {
@@ -126,7 +137,7 @@ public interface EscapeCrystalConfig extends Config {
             keyName = "autoTeleNotification",
             name = "Auto-tele notification warning",
             description = "Triggers a notification when the warning time before teleporting is reached",
-            position = 9,
+            position = 10,
             section = autoTeleTimerSection
     )
     default boolean autoTeleNotification() {
