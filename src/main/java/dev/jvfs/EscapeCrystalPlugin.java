@@ -166,6 +166,9 @@ public class EscapeCrystalPlugin extends Plugin {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
 
             if (config.autoTeleNotification() && this.hasEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
+                if (config.autoTeleNotificationInCombat() && !this.isInCombat()) {
+                    return;
+                }
                 notifier.notify("Escape Crystal about to trigger");
                 notifiedThisTimer = true;
             }
@@ -189,6 +192,10 @@ public class EscapeCrystalPlugin extends Plugin {
         int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
 
         return Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
+    }
+
+    private boolean isInCombat() {
+        return client.getLocalPlayer().getHealthScale() != -1;
     }
 
     private void removeAutoTeleTimer() {

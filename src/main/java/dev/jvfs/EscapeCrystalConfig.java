@@ -143,4 +143,15 @@ public interface EscapeCrystalConfig extends Config {
     default boolean autoTeleNotification() {
         return false;
     }
+
+    @ConfigItem(
+            keyName = "autoTeleNotificationInCombat",
+            name = "Only notify in combat",
+            description = "If active, will onyl send auto-tele notification warnings if you are in combat",
+            position = 11,
+            section = autoTeleTimerSection
+    )
+    default boolean autoTeleNotificationInCombat() {
+        return false;
+    }
 }
