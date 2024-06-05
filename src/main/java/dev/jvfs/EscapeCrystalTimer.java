@@ -7,18 +7,11 @@ import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import net.runelite.api.Client;
-
 import javax.inject.Inject;
 
 public class EscapeCrystalTimer extends InfoBox {
     private final EscapeCrystalConfig config;
     private final EscapeCrystalPlugin plugin;
-
-    @Inject
-    private Client client;
-
-    private static final int ESCAPE_CRYSTAL_INACTIVITY_TICKS_VARBIT = 14849;
 
 
     private final Instant endTime;

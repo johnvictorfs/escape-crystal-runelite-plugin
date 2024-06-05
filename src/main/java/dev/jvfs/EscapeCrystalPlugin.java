@@ -40,6 +40,7 @@ public class EscapeCrystalPlugin extends Plugin {
     private static final int GAUNTLET_REGION = 7512;
     private static final int CORRUPTED_GAUNTLET_REGION = 7768;
     private static final int GAUNTLET_LOBBY_REGION = 11870;
+    private static final int ESCAPE_CRYSTAL_INACTIVITY_TICKS_VARBIT = 14849;
 
     @Inject
     private Client client;
@@ -278,7 +279,7 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         this.clientInactivityTicks = currentClientInactivityTicks;
-        this.expectedTicksUntilTeleport = client.getVarbitValue(14849) - this.expectedServerInactivityTicks;
+        this.expectedTicksUntilTeleport = client.getVarbitValue(ESCAPE_CRYSTAL_INACTIVITY_TICKS_VARBIT) - this.expectedServerInactivityTicks;
 
         if (this.expectedTicksUntilTeleport < 0) {
             this.expectedTicksUntilTeleport = 0;
