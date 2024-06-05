@@ -252,7 +252,6 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         lastIdleDuration = durationMillis;
-
     }
 
     private int getAutoTelePeriod() {

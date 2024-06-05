@@ -7,12 +7,10 @@ import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import javax.inject.Inject;
 
 public class EscapeCrystalTimer extends InfoBox {
     private final EscapeCrystalConfig config;
     private final EscapeCrystalPlugin plugin;
-
 
     private final Instant endTime;
 
