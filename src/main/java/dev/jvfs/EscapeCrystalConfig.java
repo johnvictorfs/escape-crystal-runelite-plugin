@@ -112,10 +112,21 @@ public interface EscapeCrystalConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = "autoTeleTimerTicks",
+            name = "Show infobox time in ticks",
+            description = "If active, show the infobox timer in ticks",
+            position = 8,
+            section = autoTeleTimerSection
+    )
+    default boolean autoTeleTimerTicks() {
+        return true;
+    }
+
+    @ConfigItem(
             keyName = "autoTeleTimerAlertTime",
             name = "Infobox Alert time",
             description = "When the auto-tele timer is below this time (in seconds), the timer will turn a different color. Keep at 0 to disable.",
-            position = 8,
+            position = 9,
             section = autoTeleTimerSection
     )
     default int autoTeleTimerAlertTime() {
@@ -126,7 +137,7 @@ public interface EscapeCrystalConfig extends Config {
             keyName = "autoTeleTimerAlertColor",
             name = "Infobox Alert color",
             description = "The color of the timer when auto-tele is active",
-            position = 9,
+            position = 10,
             section = autoTeleTimerSection
     )
     default Color autoTeleTimerAlertColor() {
@@ -137,7 +148,7 @@ public interface EscapeCrystalConfig extends Config {
             keyName = "autoTeleNotification",
             name = "Auto-tele notification warning",
             description = "Triggers a notification when the warning time before teleporting is reached",
-            position = 10,
+            position = 11,
             section = autoTeleTimerSection
     )
     default boolean autoTeleNotification() {
@@ -148,7 +159,7 @@ public interface EscapeCrystalConfig extends Config {
             keyName = "autoTeleNotificationInCombat",
             name = "Only notify in combat",
             description = "If active, will onyl send auto-tele notification warnings if you are in combat",
-            position = 11,
+            position = 12,
             section = autoTeleTimerSection
     )
     default boolean autoTeleNotificationInCombat() {
@@ -159,7 +170,7 @@ public interface EscapeCrystalConfig extends Config {
             keyName = "notifyGauntletWithoutCrystal",
             name = "Notify when entering Gauntlet without crystal",
             description = "Triggers a notification when entering the Gauntlet without an escape crystal",
-            position = 12,
+            position = 13,
             section = autoTeleTimerSection
     )
     default boolean notifyGauntletWithoutCrystal() {

@@ -7,10 +7,19 @@ import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import net.runelite.api.Client;
+
+import javax.inject.Inject;
 
 public class EscapeCrystalTimer extends InfoBox {
     private final EscapeCrystalConfig config;
     private final EscapeCrystalPlugin plugin;
+
+    @Inject
+    private Client client;
+
+    private static final int ESCAPE_CRYSTAL_INACTIVITY_TICKS_VARBIT = 14849;
+
 
     private final Instant endTime;
 
@@ -33,18 +42,24 @@ public class EscapeCrystalTimer extends InfoBox {
             return "?";
         }
 
-        Duration timeLeft = Duration.between(Instant.now(), endTime);
 
-        int seconds = (int) (timeLeft.toMillis() / 1000L);
+        if(!config.autoTeleTimerTicks()) {
+            Duration timeLeft = Duration.between(Instant.now(), endTime);
 
-        if (seconds <= 0) {
-            return "Tele";
+            int seconds = (int) (timeLeft.toMillis() / 1000L);
+
+            if (seconds <= 0) {
+                return "Tele";
+            }
+
+            int minutes = (seconds % 3600) / 60;
+            int secs = seconds % 60;
+
+            return String.format("%d:%02d", minutes, secs);
         }
-
-        int minutes = (seconds % 3600) / 60;
-        int secs = seconds % 60;
-
-        return String.format("%d:%02d", minutes, secs);
+        else {
+            return String.format("%d", plugin.getAutoTeleTicks());
+        }
     }
 
     @Override

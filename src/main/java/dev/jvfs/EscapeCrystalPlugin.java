@@ -14,6 +14,7 @@ import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
@@ -78,6 +79,14 @@ public class EscapeCrystalPlugin extends Plugin {
 
     @Getter
     private boolean notifiedGauntlet = false;
+
+    @Getter
+    private int autoTeleTicks = 0;
+
+    private int clientInactivityTicks;
+    private int expectedServerInactivityTicks = 0;
+    private int expectedTicksUntilTeleport;
+
 
     @Override
     protected void startUp() throws Exception {
@@ -192,6 +201,12 @@ public class EscapeCrystalPlugin extends Plugin {
     }
 
     @Subscribe
+    public void onGameTick(GameTick gameTick)
+    {
+        autoTeleTicks = setAutoTeleTicks();
+    }
+
+    @Subscribe
     public void onClientTick(ClientTick clientTick) {
         if (client.getGameState() != GameState.LOGGED_IN) {
             return;
@@ -236,6 +251,7 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         lastIdleDuration = durationMillis;
+
     }
 
     private int getAutoTelePeriod() {
@@ -248,6 +264,27 @@ public class EscapeCrystalPlugin extends Plugin {
         int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
 
         return Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
+    }
+
+    private int setAutoTeleTicks(){
+
+        int currentClientInactivityTicks = Math.min(client.getKeyboardIdleTicks(), client.getMouseIdleTicks());
+
+        if (currentClientInactivityTicks > this.clientInactivityTicks) {
+            this.expectedServerInactivityTicks += 1;
+        }
+        else {
+            this.expectedServerInactivityTicks = 0;
+        }
+
+        this.clientInactivityTicks = currentClientInactivityTicks;
+        this.expectedTicksUntilTeleport = client.getVarbitValue(14849) - this.expectedServerInactivityTicks;
+
+        if (this.expectedTicksUntilTeleport < 0) {
+            this.expectedTicksUntilTeleport = 0;
+        }
+
+        return this.expectedTicksUntilTeleport;
     }
 
     private boolean isInCombat() {
