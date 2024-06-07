@@ -33,18 +33,24 @@ public class EscapeCrystalTimer extends InfoBox {
             return "?";
         }
 
-        Duration timeLeft = Duration.between(Instant.now(), endTime);
 
-        int seconds = (int) (timeLeft.toMillis() / 1000L);
+        if(!config.autoTeleTimerTicks()) {
+            Duration timeLeft = Duration.between(Instant.now(), endTime);
 
-        if (seconds <= 0) {
-            return "Tele";
+            int seconds = (int) (timeLeft.toMillis() / 1000L);
+
+            if (seconds <= 0) {
+                return "Tele";
+            }
+
+            int minutes = (seconds % 3600) / 60;
+            int secs = seconds % 60;
+
+            return String.format("%d:%02d", minutes, secs);
         }
-
-        int minutes = (seconds % 3600) / 60;
-        int secs = seconds % 60;
-
-        return String.format("%d:%02d", minutes, secs);
+        else {
+            return String.format("%d", plugin.getAutoTeleTicks());
+        }
     }
 
     @Override

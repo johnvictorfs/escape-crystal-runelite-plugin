@@ -14,6 +14,7 @@ import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
@@ -28,6 +29,7 @@ import net.runelite.client.util.Text;
 
 import java.awt.image.BufferedImage;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +41,7 @@ public class EscapeCrystalPlugin extends Plugin {
     private static final int GAUNTLET_REGION = 7512;
     private static final int CORRUPTED_GAUNTLET_REGION = 7768;
     private static final int GAUNTLET_LOBBY_REGION = 11870;
+    private static final int ESCAPE_CRYSTAL_INACTIVITY_TICKS_VARBIT = 14849;
 
     @Inject
     private Client client;
@@ -78,6 +81,14 @@ public class EscapeCrystalPlugin extends Plugin {
 
     @Getter
     private boolean notifiedGauntlet = false;
+
+    @Getter
+    private int autoTeleTicks = 0;
+
+    private int clientInactivityTicks;
+    private int expectedServerInactivityTicks = 0;
+    private int expectedTicksUntilTeleport;
+
 
     @Override
     protected void startUp() throws Exception {
@@ -192,7 +203,9 @@ public class EscapeCrystalPlugin extends Plugin {
     }
 
     @Subscribe
-    public void onClientTick(ClientTick clientTick) {
+    public void onGameTick(GameTick gameTick) {
+        autoTeleTicks = setAutoTeleTicks();
+
         if (client.getGameState() != GameState.LOGGED_IN) {
             return;
         }
@@ -216,9 +229,9 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         // Update auto-tele timer infobox when idle timer resets
-        final int durationMillis = getAutoTelePeriod();
+        int durationMillis = (autoTeleTicks * 600) + 999;
 
-        if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
+        if (lastIdleDuration == -1 || durationMillis <= lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
 
             if (config.autoTeleNotification() && this.hasEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
@@ -238,16 +251,23 @@ public class EscapeCrystalPlugin extends Plugin {
         lastIdleDuration = durationMillis;
     }
 
-    private int getAutoTelePeriod() {
-        String autoTeleTimerValue = configManager.getRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_TIMER_KEY);
+    private int setAutoTeleTicks() {
+        int currentClientInactivityTicks = Math.min(client.getKeyboardIdleTicks(), client.getMouseIdleTicks());
 
-        if (autoTeleTimerValue == null || autoTeleTimerValue.equals("-1")) {
-            return -1;
+        if (currentClientInactivityTicks > this.clientInactivityTicks) {
+            this.expectedServerInactivityTicks += 1;
+        } else {
+            this.expectedServerInactivityTicks = 0;
         }
 
-        int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
+        this.clientInactivityTicks = currentClientInactivityTicks;
+        this.expectedTicksUntilTeleport = client.getVarbitValue(ESCAPE_CRYSTAL_INACTIVITY_TICKS_VARBIT) - this.expectedServerInactivityTicks;
 
-        return Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
+        if (this.expectedTicksUntilTeleport < 0) {
+            this.expectedTicksUntilTeleport = 0;
+        }
+
+        return this.expectedTicksUntilTeleport;
     }
 
     private boolean isInCombat() {
