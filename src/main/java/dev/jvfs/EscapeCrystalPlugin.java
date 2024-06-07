@@ -29,6 +29,7 @@ import net.runelite.client.util.Text;
 
 import java.awt.image.BufferedImage;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -202,13 +203,9 @@ public class EscapeCrystalPlugin extends Plugin {
     }
 
     @Subscribe
-    public void onGameTick(GameTick gameTick)
-    {
+    public void onGameTick(GameTick gameTick) {
         autoTeleTicks = setAutoTeleTicks();
-    }
 
-    @Subscribe
-    public void onClientTick(ClientTick clientTick) {
         if (client.getGameState() != GameState.LOGGED_IN) {
             return;
         }
@@ -232,9 +229,9 @@ public class EscapeCrystalPlugin extends Plugin {
         }
 
         // Update auto-tele timer infobox when idle timer resets
-        final int durationMillis = getAutoTelePeriod();
+        int durationMillis = (autoTeleTicks * 600) + 999;
 
-        if (lastIdleDuration == -1 || durationMillis < lastIdleDuration) {
+        if (lastIdleDuration == -1 || durationMillis <= lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
 
             if (config.autoTeleNotification() && this.hasEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
@@ -254,26 +251,12 @@ public class EscapeCrystalPlugin extends Plugin {
         lastIdleDuration = durationMillis;
     }
 
-    private int getAutoTelePeriod() {
-        String autoTeleTimerValue = configManager.getRSProfileConfiguration(EscapeCrystalConfig.GROUP, EscapeCrystalConfig.AUTO_TELE_TIMER_KEY);
-
-        if (autoTeleTimerValue == null || autoTeleTimerValue.equals("-1")) {
-            return -1;
-        }
-
-        int autoTeleTimer = Integer.parseInt(autoTeleTimerValue);
-
-        return Constants.CLIENT_TICK_LENGTH * ((autoTeleTimer * 50) - getIdleTicks()) + 999;
-    }
-
-    private int setAutoTeleTicks(){
-
+    private int setAutoTeleTicks() {
         int currentClientInactivityTicks = Math.min(client.getKeyboardIdleTicks(), client.getMouseIdleTicks());
 
         if (currentClientInactivityTicks > this.clientInactivityTicks) {
             this.expectedServerInactivityTicks += 1;
-        }
-        else {
+        } else {
             this.expectedServerInactivityTicks = 0;
         }
 
