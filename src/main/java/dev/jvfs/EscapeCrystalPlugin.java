@@ -8,12 +8,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.Constants;
 import net.runelite.api.GameState;
 import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
-import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.Notifier;
@@ -29,7 +27,6 @@ import net.runelite.client.util.Text;
 
 import java.awt.image.BufferedImage;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
