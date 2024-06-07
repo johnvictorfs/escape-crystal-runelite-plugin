@@ -119,7 +119,7 @@ public interface EscapeCrystalConfig extends Config {
             section = autoTeleTimerSection
     )
     default boolean autoTeleTimerTicks() {
-        return true;
+        return false;
     }
 
     @ConfigItem(
