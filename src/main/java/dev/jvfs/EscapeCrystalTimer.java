@@ -55,11 +55,15 @@ public class EscapeCrystalTimer extends InfoBox {
 
     @Override
     public Color getTextColor() {
-        Duration timeLeft = Duration.between(Instant.now(), endTime);
+        if (!this.plugin.hasActiveEscapeCrystal()) {
+            return config.autoTeleInactiveStatusColor();
+        }
 
         if (config.autoTeleTimerAlertTime() == 0) {
             return Color.WHITE;
         }
+
+        Duration timeLeft = Duration.between(Instant.now(), endTime);
 
         if (timeLeft.getSeconds() < config.autoTeleTimerAlertTime()) {
             return config.autoTeleTimerAlertColor();
