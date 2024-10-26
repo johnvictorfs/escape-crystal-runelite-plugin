@@ -135,10 +135,14 @@ public class EscapeCrystalPlugin extends Plugin {
         return this.isInsideGauntlet() && this.inGauntletWithCrystal;
     }
 
+    public boolean hasActiveEscapeCrystal() {
+        return this.hasEscapeCrystal() && this.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE;
+    }
+
     private void checkGauntlet() {
         if (!this.inGauntletWithCrystal) {
             if (this.isInGauntletLobby()) {
-                if (this.hasEscapeCrystal() && this.getAutoTeleStatus() == EscapeCrystalOverlay.AutoTeleStatus.ACTIVE) {
+                if (this.hasActiveEscapeCrystal()) {
                     // Inside the gauntlet lobby with an active escape crystal
                     this.inGauntletWithCrystal = true;
                 } else if (this.config.notifyGauntletWithoutCrystal()) {
@@ -231,7 +235,7 @@ public class EscapeCrystalPlugin extends Plugin {
         if (lastIdleDuration == -1 || durationMillis <= lastIdleDuration) {
             createAutoTeleTimer(Duration.ofMillis(durationMillis));
 
-            if (config.autoTeleNotification() && this.hasEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
+            if (config.autoTeleNotification() && this.hasActiveEscapeCrystal() && !notifiedThisTimer && durationMillis <= (config.autoTeleTimerAlertTime() * 1000)) {
                 if (config.autoTeleNotificationInCombat() && !this.isInCombat()) {
                     return;
                 }
